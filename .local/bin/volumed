@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Update the volume module in the statusbar whenever
+# relevant PulseAudio events occur
+
+while :; do
+        pactl subscribe 2>/dev/null | grep --line-buffered -e "on card" -e "on sink " -e "on server" -e "on source" | {
+                while read -r; do
+                        # Read all stdin to flush unwanted pending events, i.e. if there are
+                        # 15 events at the same time (100ms window), output is called once.
+                        read -r -d '' -t 0.1 -n 10000
+
+                        cur=$(pactl list short sinks | cut -f5)
+
+                        # Make sure statusbar kill isn't triggered when only the status of sinks change
+                        [ "$cur" = "$prev" ] && pkill -RTMIN+10 "${STATUSBAR:-dwmblocks}"
+
+                        prev=$(pactl list short sinks | cut -f5)
+                done
+        }
+done
