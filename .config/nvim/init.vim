@@ -22,7 +22,7 @@ Plug 'ap/vim-css-color'
 call plug#end()
 
 set title
-set bg=dark
+set bg=light
 set go=a
 set mouse=a
 set nohlsearch
