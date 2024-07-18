@@ -9,13 +9,13 @@ checkmoon() {
 		cut -d' ' -f1)" = "$(date '+%Y-%m-%d')" ]
 }
 
-getmoon() { { [ "$(cat /sys/class/net/w*/operstate)" = 'up' ] || [ "$(cat /sys/class/net/e*/operstate)" = 'up' ]; } &&
+getmoon() { { grep -q -m1 '^up$' /sys/class/net/w*/operstate || grep -q -m1 '^up$' /sys/class/net/e*/operstate; } &&
 	curl -sf "wttr.in/?format=%m" --output "$moonfile" && touch "$moonfile"
 }
 
 checkmoon ||
 	( flock -n 9 &&
-		( tries=0; while [ $tries -ne 50 ]; do
+		( tries=0; while [ $tries -ne 100 ]; do
 			# shellcheck disable=SC2015
 			getmoon && break ||
 				{ tries=$((tries+1)); sleep .1; }
